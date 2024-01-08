@@ -8,7 +8,7 @@ import Head from "next/head";
 interface HomeProps {
   product : {
     priceId: string;
-    amount: number;
+    amount: string;
   }
 }
 
@@ -26,15 +26,10 @@ export default function Home({ product }: HomeProps) {
           <span>👏 Hey, Welcome!</span>
           <h1>News about the <span>React</span> world.</h1>
           <p>
-            Get access to all the publications. <br/>
-            <span> 
-              for {new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                  }).format(product.amount)} month.
-            </span>
+          Get access to all the publications <br/>
+            <span>for {product.amount} month</span>
           </p>
-          <SubscribeButton priceId={product.priceId}/>
+          <SubscribeButton />
         </section>
 
         <img src="/images/avatar.svg" alt="man coding" />
@@ -44,14 +39,16 @@ export default function Home({ product }: HomeProps) {
 }
 
 export const getStaticProps: GetStaticProps<HomeProps> = async () => {
-  const price = await stripe.prices.retrieve('price_1NznVNK646PjSc0PJaECO0H0', {
-    expand: ['product']
-  });
+  const price = await stripe.prices.retrieve('price_1IYfbnCiAeIiSh2vaCf4REf5')
 
   const product = {
     priceId: price.id,
-    amount:price.unit_amount ? price.unit_amount / 100 : 0
+    amount: new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(price.unit_amount as any / 100),
   };
+
 
   return {
     props: {
